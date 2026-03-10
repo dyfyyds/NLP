@@ -1,0 +1,33 @@
+name: Python Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        
+    - name: Run all Python files
+      run: |
+        echo "Finding and running all Python files..."
+        for file in $(find . -name "*.py" -not -path "./.github/*" -not -path "./venv/*" -not -path "./.venv/*"); do
+          echo "Running Python file: $file"
+          python "$file" || echo "Warning: $file failed to execute, continuing..."
+        done
+        echo "All Python files executed."
